@@ -1,7 +1,6 @@
-# first run: CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main .
-FROM busybox
-
-ADD main ./
-
-EXPOSE 2449/udp
-CMD ["/main"]
+FROM node:9.11.1-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+CMD ["npm", "start"]
