@@ -22,11 +22,15 @@ const getContainerDetails = (id) => {
 
 const handleData = (data) => {
   data = JSON.parse(data)
+
   if (data.status === 'start') {
     console.log('Get Details for ID:', data.id)
     getContainerDetails(data.id)
   } else if (data.Id) {
-    console.log('Container Details:', data.NetworkSettings)
+    const port = data.NetworkSettings['Ports']
+    // TODO: Get infos from json
+    console.log(port, Object.keys(port),
+      Object.keys(data.NetworkSettings))
     // send endpoint to web server
     request.post(
       process.env.WEBSERVER_ADDR + '/matchserver',
@@ -35,7 +39,8 @@ const handleData = (data) => {
         if (err) {
           console.log(err)
         }
-        console.log(response, body)
+        console.log('POST REQ OK')
+        // console.log(response, body)
       }
     )
   }
