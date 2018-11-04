@@ -1,14 +1,36 @@
 const http = require('http')
 const request = require('request')
 
+function IsJsonString (str) {
+  try {
+    JSON.parse(str)
+  } catch (e) {
+    return false
+  }
+  return true
+}
+
 const options = {
   socketPath: '/var/run/docker.sock',
   path: '/events'
 }
 
 const callback = res => {
+  let buffer
   console.log(`STATUS: ${res.statusCode}`)
-  res.on('data', data => handleData(data))
+  res.on('data', data => {
+    buffer += data
+    if (IsJsonString(data)) {
+      console.log(data + '')
+      handleData(data)
+      buffer = ''
+    } else if (IsJsonString(buffer)) {
+      console.log(buffer + '')
+      handleData(buffer)
+      buffer = ''
+    }
+  })
+  res.on('end', data => console.log('END', data))
   res.on('error', data => console.error('ERROR', data))
 }
 const getContainerDetails = (id) => {
