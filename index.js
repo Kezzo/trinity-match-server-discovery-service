@@ -16,16 +16,11 @@ const options = {
 }
 
 const callback = res => {
-  let buffer
+  let buffer = ''
   console.log(`STATUS: ${res.statusCode}`)
   res.on('data', data => {
     buffer += data
-    if (IsJsonString(data)) {
-      console.log(data + '')
-      handleData(data)
-      buffer = ''
-    } else if (IsJsonString(buffer)) {
-      console.log(buffer + '')
+    if (IsJsonString(buffer)) {
       handleData(buffer)
       buffer = ''
     }
@@ -49,20 +44,17 @@ const handleData = (data) => {
     console.log('Get Details for ID:', data.id)
     getContainerDetails(data.id)
   } else if (data.Id) {
-    const port = data.NetworkSettings['Ports']
-    // TODO: Get infos from json
-    console.log(port, Object.keys(port),
-      Object.keys(data.NetworkSettings))
+    const port = data.NetworkSettings['Ports']['2448/udp'][0].HostPort
     // send endpoint to web server
+    console.log(process.env)
     request.post(
       process.env.WEBSERVER_ADDR + '/matchserver',
-      { json: { addr: 'localhost:2448' } },
+      { json: { port, playerCount: 2 } },
       function (err, response, body) {
         if (err) {
           console.log(err)
         }
         console.log('POST REQ OK')
-        // console.log(response, body)
       }
     )
   }
