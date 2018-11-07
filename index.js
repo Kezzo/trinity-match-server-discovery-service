@@ -44,18 +44,23 @@ const handleData = (data) => {
     console.log('Get Details for ID:', data.id)
     getContainerDetails(data.id)
   } else if (data.Id) {
-    console.log('Container details:', data)
+    console.log('Container details:', data.NetworkSettings)
     const port = data.NetworkSettings['Ports']['2448/udp'][0].HostPort
+    const addr = data.NetworkSettings.IPAddress
     // send endpoint to web server
-    request.post(
-      process.env.WEBSERVER_ADDR + '/matchserver',
-      { json: { port, playerCount: 2 } },
-      function (err, response, body) {
-        if (err) {
-          console.log(err)
-        }
-        console.log('POST REQ OK')
+    const webserverAddr = process.env.WEBSERVER_ADDR + '/matchserver'
+    console.log('WEBSEVER ADDR', webserverAddr)
+    request({
+      headers: { 'content-type': 'application/json' },
+      url: webserverAddr,
+      method: 'POST',
+      json: { port, playerCount: 2, addr } },
+    function (err, resp) {
+      if (err) {
+        console.log(err)
       }
+      console.log('Response OK')
+    }
     )
   }
 }
